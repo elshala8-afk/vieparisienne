@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bienvenue dans mon appartement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500;600&family=Nanum+Pen+Script&family=Work+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F1E8D6;
+    --paper-warm: #E7DABC;
+    --ink: #262019;
+    --ink-soft: #6b6053;
+    --brass: #B87F26;
+    --brass-dark: #8C3140;
+    --sage: #5F6E45;
+    --dust-rose: #EBD3D3;
+    --scrim: rgba(20, 16, 8, 0.55);
+    --card: #FFFDF8;
+    --hotspot-blue: #B87F26;
+    --hotspot-blue-dark: #8C3140;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  .site-nav{
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 40;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    padding: clamp(16px,3vw,30px) clamp(18px,4vw,42px);
+    pointer-events: none;
+  }
+
+  .site-nav *{ pointer-events: auto; }
+
+  .nav-hint{
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--card);
+    opacity: 0.85;
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    text-shadow: 0 1px 14px rgba(0,0,0,0.25);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-hint:hover{ opacity: 1; }
+
+  .nav-hint svg{
+    width: 15px; height:15px;
+    animation: navHintBob 2.4s ease-in-out infinite;
+  }
+
+  @keyframes navHintBob{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(5px); }
+  }
+
+  @media (max-width: 640px){
+    .nav-hint{ font-size: 0.7rem; }
+  }
+
+  .wordmark{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: var(--card);
+    text-shadow: 0 1px 18px rgba(0,0,0,0.25);
+    letter-spacing: 0.01em;
+    transition: color 0.4s ease, text-shadow 0.4s ease;
+  }
+
+  .site-nav.on-beige .wordmark,
+  .site-nav.on-beige .nav-hint{
+    color: var(--ink);
+    text-shadow: none;
+    opacity: 1;
+  }
+
+  .wordmark span{
+    font-style: normal;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.6em;
+    vertical-align: 2px;
+    opacity: 0.85;
+  }
+
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Work Sans', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .eyebrow{
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* ---------- HERO ---------- */
+
+  .hero{
+    position: relative;
+    width: 100%;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+
+  .hero-room{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition: opacity 0.9s ease;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+  }
+
+  .hero-room.active{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .room-static{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit: contain;
+    object-position: center;
+    background: var(--paper);
+  }
+
+  /* Higher specificity than ".hero-media img" so these never get cropped */
+  .hero-room .hero-media .room-static{
+    object-fit: contain;
+    object-position: center;
+  }
+
+  #conversations-img.room-static{
+    object-fit: cover;
+    object-position: center 30%;
+  }
+
+  .room-nav{
+    position: fixed;
+    z-index: 45;
+    left:50%;
+    bottom: 1.6rem;
+    transform: translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap: 0.6rem;
+    background: rgba(248,244,233,0.94);
+    border: 1px solid rgba(44,39,24,0.18);
+    box-shadow: 0 10px 26px rgba(20,16,8,0.2);
+    padding: 0.65rem 1.1rem 0.65rem 1.3rem;
+    cursor:pointer;
+    font-family:'Jost', sans-serif;
+    color: var(--ink);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .room-nav:hover, .room-nav:focus-visible{
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 14px 30px rgba(20,16,8,0.26);
+    outline:none;
+  }
+
+  .room-nav-label{
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--brass-dark);
+    border-right: 1px solid rgba(44,39,24,0.2);
+    padding-right: 0.6rem;
+    margin-right: 0.1rem;
+  }
+
+  .room-nav-next{
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink);
+    max-width: 46vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .room-nav-arrow{
+    font-size: 1rem;
+    color: var(--brass-dark);
+    transition: transform 0.25s ease;
+  }
+
+  .room-nav:hover .room-nav-arrow, .room-nav:focus-visible .room-nav-arrow{
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 640px){
+    .room-nav-next{ max-width: 38vw; }
+  }
+
+  .metro-doors{
+    position: absolute;
+    left: 50%;
+    bottom: 6.8rem;
+    z-index: 7;
+    padding: 0.65rem 1.3rem;
+  }
+
+  /* Metro room: same framed treatment as the salon, but on the site's
+     plain beige background rather than a colour matched to the drawing. */
+  #room-metro{
+    background: var(--paper);
+  }
+
+  .metro-frame{
+    position:absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    width: min(92%, calc(86dvh * 1.4145));
+    max-width: 1180px;
+    aspect-ratio: 1414 / 1000;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -25px rgba(20,16,8,0.4);
+    background: var(--paper);
+  }
+
+  /* Conversations room: framed like the others, on a solid green background
+     matched to the illustration's own wall colour. */
+  #room-conversations{
+    background: #0D352A;
+  }
+
+  .conversations-frame{
+    position:absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    width: min(92%, calc(86dvh * 1.4145));
+    max-width: 1180px;
+    aspect-ratio: 1414 / 1000;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -25px rgba(20,16,8,0.4);
+    background: #0D352A;
+  }
+
+  /* ---------- BD LIBRARY (as its own carousel room) ---------- */
+
+  #room-bd{
+    background: var(--paper);
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  .bd-room-inner{
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .bd-library-head{
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 1rem;
+  }
+
+  .bd-library-head .eyebrow{
+    color: var(--brass-dark);
+    display:block;
+    margin-bottom: 0.6rem;
+  }
+
+  .bd-library-head h2{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .bd-entry{
+    position: relative;
+    min-height: 90vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+
+  .bd-entry-frame{
+    position: absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    width: min(92%, calc(86dvh * 1.4145));
+    max-width: 1180px;
+    aspect-ratio: 1414 / 1000;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--entry-bg);
+    box-shadow: 0 30px 60px -25px rgba(0,0,0,0.5);
+  }
+
+  .bd-entry-read{
+    position:absolute;
+    top:50%;
+    left: calc(50% + min(46%, calc(43dvh * 1.4145)) + 18px);
+    transform: translateY(-50%);
+    z-index: 7;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #fff;
+    background: #C9647E;
+    border: none;
+    padding: 0.85rem 1.4rem;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(20,16,8,0.3);
+    transition: transform 0.2s ease, background 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .bd-entry-read:hover{
+    background: #b0546c;
+    transform: translateY(-50%) translateX(3px);
+  }
+
+  .bd-entry-cover{
+    position:absolute;
+    inset:0;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    background: var(--entry-bg);
+  }
+
+  .bd-entry-cover img{
+    width:100%;
+    height:100%;
+    object-fit: contain;
+    display:block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+
+  .bd-entry-cover:hover img{
+    transform: scale(1.04);
+    filter: brightness(0.92);
+  }
+
+  /* In-frame comic strip: the cover turns into a horizontally scrollable
+     strip of panels, each showing a peek of the next one. The background
+     stays a solid colour (matching the section) in the gaps while scrolling. */
+  .bd-entry-strip{
+    position:absolute;
+    inset:0;
+    z-index: 9;
+    background: var(--entry-bg);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.97);
+    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+  }
+
+  .bd-entry-strip.open{
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+  }
+
+  .bd-entry-track{
+    display:flex;
+    height:100%;
+    background: var(--entry-bg);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .bd-entry-track::-webkit-scrollbar{ display:none; }
+
+  .bd-entry-panel{
+    position:relative;
+    flex: 0 0 46%;
+    height:100%;
+    scroll-snap-align: start;
+    margin-right: 3%;
+    background: var(--entry-bg);
+  }
+
+  .bd-entry-panel:first-child{
+    flex: 0 0 88%;
+    margin-right: 4%;
+  }
+
+  .bd-entry-panel:last-child{ margin-right: 0; }
+
+  .bd-entry-panel img{
+    width:100%;
+    height:100%;
+    object-fit: contain;
+    display:block;
+    border-radius: 8px;
+  }
+
+  .bd-entry-strip-close{
+    position:absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 12;
+    width: 32px; height:32px;
+    border-radius:50%;
+    border:none;
+    background: rgba(20,16,8,0.55);
+    color:#fff;
+    font-size: 0.9rem;
+    cursor:pointer;
+  }
+
+  .bd-entry-strip-close:hover{ background: rgba(20,16,8,0.75); }
+
+  .bd-entry-strip-arrow{
+    position:absolute;
+    top:50%;
+    transform: translateY(-50%);
+    z-index: 12;
+    width: 38px; height:38px;
+    border-radius:50%;
+    border:none;
+    background: rgba(255,255,255,0.9);
+    color:#0D352A;
+    font-size: 1.2rem;
+    line-height:1;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .bd-entry-strip-arrow:hover{ background:#fff; transform: translateY(-50%) scale(1.06); }
+  .bd-entry-strip-arrow:disabled{ opacity:0.35; cursor:default; }
+  .bd-entry-strip-arrow:disabled:hover{ transform: translateY(-50%); }
+
+  .bd-entry-strip-prev{ left: 10px; }
+  .bd-entry-strip-next{ right: 10px; }
+
+  @media (max-width: 900px){
+    .bd-entry-read{
+      top: auto;
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .bd-entry-read:hover{ transform: translateX(-50%) translateY(-2px); }
+    .bd-entry-panel{ flex-basis: 88%; margin-right: 4%; }
+    .bd-entry-panel:first-child{ flex-basis: 88%; margin-right: 4%; }
+  }
+
+  .metro-story-spot{
+    position:absolute;
+    left: 30%;
+    top: 55%;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border:none;
+    background:none;
+    cursor:pointer;
+    padding:0;
+    z-index: 6;
+  }
+
+  .frame-title{
+    position:absolute;
+    z-index: 4;
+    bottom: 6%;
+    right: 6%;
+    left: auto;
+    top: auto;
+    max-width: 68%;
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(0.84rem, 1.82vw, 1.33rem);
+    line-height: 1.2;
+    color: #fff;
+    background: var(--title-bg, #C9647E);
+    padding: 0.5em 0.75em;
+    border-radius: 2px;
+    pointer-events: none;
+    text-align: right;
+  }
+
+  .frame-title.frame-title-dark{
+    color: #fff;
+    background: #14110E;
+  }
+
+  @media (max-width: 640px){
+    .frame-title{ max-width: 82%; font-size: clamp(0.7rem, 3.15vw, 0.98rem); padding: 0.45em 0.65em; }
+  }
+
+  #room-salon .frame-title{
+    top: auto;
+    bottom: 6%;
+    left: auto;
+    right: 6%;
+  }
+
+  /* Salon room: framed, resized illustration on a background that matches
+     the illustration's own colour — like the coffee shop reference. */
+  #room-salon{
+    background: var(--mood-color, var(--paper));
+    transition: background 700ms ease;
+  }
+
+  .salon-frame{
+    position:absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    width: min(92%, calc(86dvh * 1.4145));
+    max-width: 1180px;
+    aspect-ratio: 1414 / 1000;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -25px rgba(20,16,8,0.4);
+    background: var(--mood-color, var(--paper));
+  }
+
+  .salon-moods-wrap{
+    position:absolute;
+    left: 16px; bottom: 16px;
+    z-index: 8;
+    display:flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .salon-moods-label{
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: rgba(20,17,14,0.32);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  .salon-moods{
+    display:flex;
+    gap: 10px;
+    background: rgba(20,17,14,0.32);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    padding: 8px;
+    border-radius: 999px;
+  }
+
+  .mood-btn{
+    width: 26px; height:26px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.8);
+    position: relative;
+    padding:0;
+  }
+  .mood-btn[data-mood="0"]{ background: #F1A5B8; }
+  .mood-btn[data-mood="1"]{ background: #547AB8; }
+  .mood-btn[data-mood="2"]{ background: #82B1B3; }
+  .mood-btn.active{ box-shadow: 0 0 0 2.5px var(--card); }
+
+  .hero-media{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    transform-origin: 50% 50%;
+    transition: transform 0.85s cubic-bezier(.16,.8,.24,1);
+    will-change: transform;
+  }
+
+  .hero-media.zoomed{
+    transform: scale(var(--zoom-scale, 1.6));
+  }
+
+  .hero-media img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    object-position: center 30%;
+    transition: filter 0.85s ease;
+    will-change: transform;
+  }
+
+  .hero-media.zoomed img{
+    filter: saturate(1.05);
+  }
+
+  .hero-media .img-base{
+    filter: none;
+  }
+
+  .hero-media .img-base.color-on{
+    filter: none;
+  }
+
+  .hero-media .img-color{
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    -webkit-mask-image: radial-gradient(ellipse var(--rx,0%) var(--ry,0%) at var(--cx,50%) var(--cy,50%), black 55%, transparent 100%);
+    mask-image: radial-gradient(ellipse var(--rx,0%) var(--ry,0%) at var(--cx,50%) var(--cy,50%), black 55%, transparent 100%);
+  }
+
+  .hero-media .img-color.visible{
+    opacity: 1;
+  }
+
+  .hero-media::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 22%, rgba(15,12,6,0.05) 55%, rgba(15,12,6,0.58) 100%);
+  }
+
+  /* Spotlight vignette used alongside the click-zoom, to pull focus onto
+     the clicked object while the rest of the room dims. */
+  .focus-vignette{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    opacity:0;
+    background: radial-gradient(circle at var(--vx,50%) var(--vy,50%), transparent 0%, transparent 20%, rgba(10,8,4,0.62) 70%);
+    transition: opacity 0.7s ease;
+  }
+
+  .focus-vignette.active{
+    opacity:1;
+  }
+
+  .hero-content{
+    position:absolute;
+    z-index:2;
+    top: 5%;
+    left: 5%;
+    right: 5%;
+    max-width: 320px;
+    text-align:left;
+    padding: 0;
+    margin: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .hero-content .eyebrow,
+  .hero-content .hero-title,
+  .hero-content .hero-sub{
+    color: var(--card);
+    text-shadow: 0 1px 14px rgba(0,0,0,0.25);
+  }
+
+  #room-salon .hero-content{
+    top: 9%;
+    left: 38%;
+    right: auto;
+    transform: translateX(-50%);
+    text-align: center;
+    max-width: 280px;
+  }
+
+  #room-metro .hero-content{
+    top: 50%;
+    bottom: auto;
+    left: 1.6rem;
+    right: auto;
+    transform: translateY(-50%);
+    max-width: 280px;
+    text-align: left;
+    background: var(--paper);
+    padding: 1.3rem 1.5rem;
+    border-radius: 4px 16px 16px 16px;
+    box-shadow: 0 10px 26px rgba(20,16,8,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  #room-metro .hero-content.visible{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #room-metro .hero-content .eyebrow,
+  #room-metro .hero-content .hero-title,
+  #room-metro .hero-content .hero-sub{
+    color: var(--ink);
+    text-shadow: none;
+  }
+
+  #metro-hero-sub{
+    max-height: none;
+    overflow: visible;
+    opacity: 1;
+  }
+
+  .hero-content .eyebrow{
+    color: var(--brass-dark);
+    display:block;
+    margin-bottom: 0.5rem;
+    opacity: 0.85;
+    letter-spacing: 0.14em;
+  }
+
+  .hero-title{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.15rem, 2.4vw, 1.85rem);
+    line-height: 1.2;
+    color: var(--ink);
+    margin: 0 0 0.6rem;
+    min-height: 1.4em;
+    word-break: normal;
+  }
+
+  .hero-title .caret{
+    display:inline-block;
+    margin-left: 1px;
+    font-style: normal;
+    color: var(--brass-dark);
+    animation: blink-caret 0.85s step-end infinite;
+  }
+
+  .hero-title .caret.done{
+    animation: blink-caret 0.85s step-end infinite;
+    opacity: 0.6;
+  }
+
+  @keyframes blink-caret{
+    0%, 100%{ opacity: 1; }
+    50%{ opacity: 0; }
+  }
+
+  .hero-sub{
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 auto;
+    max-width: 30ch;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+  }
+
+  .hero-sub.visible{
+    opacity: 0.85;
+  }
+
+  .scroll-cue{
+    position:absolute;
+    bottom: 2rem;
+    left:50%;
+    transform: translateX(-50%);
+    z-index:2;
+    color:#f2e9d4;
+    font-family:'Jost', sans-serif;
+    font-size:0.68rem;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0.5rem;
+    opacity:0.85;
+  }
+
+  .scroll-cue .line{
+    width:1px;
+    height:34px;
+    background: linear-gradient(180deg, #f2e9d4, transparent);
+    animation: pulse-line 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-line{
+    0%,100%{ opacity:0.35; }
+    50%{ opacity:1; }
+  }
+
+  /* ---------- HOTSPOTS ---------- */
+
+  .hotspot{
+    position:absolute;
+    z-index:3;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border:none;
+    background: none;
+    cursor: pointer;
+    padding:0;
+  }
+
+  .hotspot .ring{
+    position:absolute;
+    inset:-8px;
+    border-radius:50%;
+    border: 1.5px solid rgba(255,255,255,0.55);
+    animation: breathe 2.6s ease-out infinite;
+  }
+
+  .hotspot .pin{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(20,17,14,0.28);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    border: 1.5px solid rgba(255,255,255,0.75);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .hotspot .pin::after{
+    content:"";
+    width:7px; height:7px;
+    border-radius:50%;
+    background:#fff;
+  }
+
+  .hotspot .pin.bounce{
+    animation: pinBounce 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes pinBounce{
+    0%{ transform: translate(0,0) scale(1); }
+    35%{ transform: translate(0,0) scale(1.25); }
+    100%{ transform: translate(0,0) scale(1); }
+  }
+
+  .hotspot:hover .pin, .hotspot:focus-visible .pin{
+    background: rgba(20,17,14,0.55);
+    transform: scale(1.12);
+  }
+
+  .hotspot:hover .ring, .hotspot:focus-visible .ring{
+    animation-duration: 1.3s;
+  }
+
+  @keyframes breathe{
+    0%{ transform: scale(0.7); opacity:.9; }
+    80%{ opacity:0; }
+    100%{ transform: scale(1.35); opacity:0; }
+  }
+
+  .hotspot-label{
+    position:absolute;
+    bottom: 130%;
+    left:50%;
+    transform: translateX(-50%) translateY(4px);
+    white-space:nowrap;
+    background: rgba(20,16,8,0.82);
+    color:#f6efdc;
+    font-family:'Jost', sans-serif;
+    font-size:0.66rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    padding: 0.4rem 0.7rem;
+    border-radius: 2px;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .hotspot-label::after{
+    content:"";
+    position:absolute;
+    top:100%; left:50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(20,16,8,0.82);
+  }
+
+  .hotspot:hover .hotspot-label, .hotspot:focus-visible .hotspot-label{
+    opacity:1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .hotspot:focus-visible{
+    outline: none;
+  }
+  .hotspot:focus-visible .pin{
+    box-shadow: 0 0 0 4px rgba(20,16,8,0.18), 0 0 0 7px rgba(63,116,171,0.55);
+  }
+
+  /* ---------- GUIDE STRIP ---------- */
+
+  .guide{
+    background: var(--paper-warm);
+    border-top: 1px solid rgba(44,39,24,0.12);
+    border-bottom: 1px solid rgba(44,39,24,0.12);
+    padding: 2.6rem 1.5rem;
+    text-align:center;
+  }
+
+  .guide p{
+    margin:0;
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    color: var(--ink-soft);
+    max-width: 52ch;
+    margin: 0 auto;
+  }
+
+  .guide .eyebrow{
+    display:block;
+    color: var(--brass-dark);
+    margin-bottom: 0.9rem;
+  }
+
+  /* ---------- LEGEND / INDEX ---------- */
+
+  .univers{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4.5rem 1.5rem 6.5rem;
+  }
+
+  .univers-head{
+    text-align:center;
+    margin-bottom: 3rem;
+  }
+
+  .univers-head .eyebrow{ color: var(--brass-dark); margin-bottom:0.7rem; }
+
+  .univers-head h2{
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.9rem, 3.6vw, 2.8rem);
+    margin: 0 0 0.9rem;
+    color: var(--ink);
+  }
+
+  .univers-head p{
+    font-family:'EB Garamond', serif;
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    max-width: 52ch;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .univers-grid{
+    display:flex;
+    gap: 1.1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem 0.3rem 1.2rem;
+    scrollbar-width: thin;
+  }
+
+  .univers-card{
+    position:relative;
+    flex: 0 0 auto;
+    width: 158px;
+    scroll-snap-align: start;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    text-decoration:none;
+    background: var(--card);
+    border-radius: 22px;
+    padding: 0.7rem 0.7rem 1.1rem;
+    box-shadow: 0 10px 26px -10px rgba(20,16,8,0.22);
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+    transition: opacity 0.6s ease, transform 0.5s cubic-bezier(.2,.8,.3,1), box-shadow 0.25s ease;
+  }
+
+  .univers-card.in-view{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .univers-card:hover, .univers-card:focus-visible{
+    transform: translateY(-4px);
+    box-shadow: 0 16px 34px -12px rgba(20,16,8,0.3);
+    outline:none;
+  }
+
+  .univers-card .sticker{
+    width:100%;
+    aspect-ratio: 1 / 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom: 0.85rem;
+    border-radius: 16px;
+    background: var(--paper-warm);
+    overflow: hidden;
+  }
+
+  .univers-card .sticker img{
+    max-width: 82%;
+    max-height: 82%;
+    width:auto;
+    height:auto;
+    object-fit: contain;
+    transform: scale(var(--s, 1));
+    transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
+  }
+
+  .univers-card:hover .sticker img, .univers-card:focus-visible .sticker img{
+    transform: scale(calc(var(--s, 1) * 1.05));
+  }
+
+  .univers-card .object-name{
+    display:none;
+  }
+
+  .univers-card .theme-name{
+    font-family:'Work Sans', sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 0.98rem;
+    line-height:1.28;
+    color: var(--ink);
+  }
+
+  .univers-card .go{
+    display:none;
+  }
+
+  @media (min-width: 720px){
+    .univers-grid{
+      overflow-x: visible;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0.5rem 0 1.2rem;
+    }
+    .univers-card{ width: 176px; }
+  }
+
+  /* ---------- MODAL ---------- */
+
+  .modal-overlay{
+    position: fixed;
+    inset:0;
+    background: var(--scrim);
+    z-index: 50;
+    opacity:0;
+    visibility:hidden;
+    transition: opacity 0.26s ease, visibility 0.26s ease;
+  }
+
+  .modal-overlay.open{
+    opacity:1;
+    visibility:visible;
+  }
+
+  .modal-card{
+    position:fixed;
+    top:0; right:0; bottom:0;
+    width: min(420px, 100vw);
+    background: var(--card);
+    color: var(--ink);
+    z-index: 60;
+    padding: 1.6rem 1.8rem 2.4rem;
+    box-shadow: -30px 0 60px -25px rgba(20,16,8,0.4);
+    transform: translateX(105%);
+    transition: transform 0.34s cubic-bezier(.2,.8,.25,1);
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open .modal-card{
+    transform: translateX(0);
+  }
+
+  @media (max-width: 640px){
+    .modal-card{
+      width: 100%;
+      top: auto; left:0; right:0; bottom:0;
+      height: min(84dvh, 640px);
+      border-radius: 20px 20px 0 0;
+      transform: translateY(105%);
+    }
+    .modal-overlay.open .modal-card{
+      transform: translateY(0);
+    }
+  }
+
+  .modal-close{
+    position:absolute;
+    top: 1.1rem;
+    right: 1.2rem;
+    width: 34px;
+    height:34px;
+    border-radius:50%;
+    border: none;
+    background: var(--paper-warm);
+    color: var(--ink);
+    font-family:'Work Sans', sans-serif;
+    font-size: 1.1rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .modal-close:hover{
+    background: rgba(44,39,24,0.12);
+    transform: rotate(90deg);
+  }
+
+  .modal-card .eyebrow{
+    display:inline-block;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brass-dark);
+    background: var(--paper-warm);
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    margin: 2.4rem 0 1.1rem;
+  }
+
+  .modal-card h3{
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    margin: 0 0 1.1rem;
+    color: var(--ink);
+    line-height:1.15;
+  }
+
+  .modal-card .divider{
+    display: none;
+  }
+
+  .modal-image{
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background-repeat: no-repeat;
+    border: 1px solid rgba(44,39,24,0.18);
+    box-shadow: 0 8px 22px rgba(20,16,8,0.18);
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+  }
+
+  .modal-card p{
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 1.4rem;
+  }
+
+  .modal-card .sign{
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--brass-dark);
+    text-align:right;
+    margin: 0 0 1.6rem;
+  }
+
+  .modal-cta{
+    display:inline-flex;
+    align-items:center;
+    gap: 0.5rem;
+    font-family:'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--brass-dark);
+    text-decoration: none;
+    border: 1px solid var(--brass);
+    padding: 0.75rem 1.3rem;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .modal-cta:hover, .modal-cta:focus-visible{
+    background: var(--brass);
+    color: #fbf6e9;
+  }
+
+  /* ---------- FOOTER ---------- */
+
+  footer{
+    text-align:center;
+    padding: 3rem 1.5rem 3.5rem;
+    background: var(--paper);
+  }
+
+  footer p{
+    font-family:'Jost', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(44,39,24,0.55);
+    margin:0;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+    html{ scroll-behavior:auto; }
+  }
+
+  @media (max-width: 640px){
+    .hero-content{ padding: 0.9rem 1.1rem 1rem; }
+    .univers{ padding-top: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <span class="wordmark">mavieparisienne<span>.</span></span>
+  <button class="nav-hint" id="nav-hint" type="button">explore le dessin
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+  </button>
+</nav>
+
+<section class="hero">
+
+  <div class="hero-room active" id="room-salon" data-room="salon" data-title="L'appartement">
+    <div class="salon-frame" id="salon-frame">
+      <div class="hero-media">
+        <img class="img-base" alt="Illustration d'un salon élégant : cheminée, tapis, canapé, bibliothèque, tableau, table, plantes et lampe.">
+        <img class="img-color" id="img-color" alt="" aria-hidden="true">
+      </div>
+
+      <div class="focus-vignette" id="focus-vignette"></div>
+
+      <!-- Hotspots are positioned in percentages of the frame, matched to objects in the illustration -->
+      <div id="hotspots"></div>
+
+      <h1 class="frame-title" id="salon-frame-title">L'appartement</h1>
+
+      <div class="salon-moods-wrap">
+        <span class="salon-moods-label">Choisis ta couleur</span>
+        <div class="salon-moods" id="salon-moods">
+          <button class="mood-btn" data-mood="0" type="button" aria-label="Ambiance rose"></button>
+          <button class="mood-btn" data-mood="1" type="button" aria-label="Ambiance bleue"></button>
+          <button class="mood-btn" data-mood="2" type="button" aria-label="Ambiance verte"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-cue">
+      <span>Explorer</span>
+      <span class="line"></span>
+    </div>
+  </div>
+
+  <div class="hero-room" id="room-metro" data-room="metro" data-title="Les voyages parisiens">
+    <div class="metro-frame" id="metro-frame">
+      <div class="hero-media">
+        <img class="room-static" id="metro-img" alt="Illustration du métro parisien, portes fermées.">
+      </div>
+
+      <button class="room-nav metro-doors" id="metro-doors-btn" type="button">
+        <span class="room-nav-next" id="metro-doors-label">Ouvrir les portes</span>
+      </button>
+
+      <button class="hotspot metro-story-spot" id="metro-story-spot" type="button" aria-label="Mon aventure parisienne">
+        <span class="ring"></span><span class="pin"></span>
+      </button>
+
+      <h1 class="frame-title frame-title-dark">Les voyages parisiens</h1>
+    </div>
+  </div>
+
+  <div class="hero-room" id="room-bd" data-room="bd" data-title="Mes bandes dessinées">
+    <div class="bd-room-inner">
+      <div class="bd-entry" data-comic="conversations" style="background:#0D352A; --entry-bg:#0D352A;">
+        <div class="bd-entry-frame">
+          <button class="bd-entry-cover" type="button" aria-label="Lire Mes conversations parisiennes">
+            <img src="images/bd/panel1.webp" alt="Couverture — Mes conversations parisiennes">
+          </button>
+          <div class="bd-entry-strip">
+            <button class="bd-entry-strip-close" type="button" aria-label="Fermer la BD">✕</button>
+            <button class="bd-entry-strip-arrow bd-entry-strip-prev" type="button" aria-label="Vignette précédente">‹</button>
+            <button class="bd-entry-strip-arrow bd-entry-strip-next" type="button" aria-label="Vignette suivante">›</button>
+            <div class="bd-entry-track">
+              <div class="bd-entry-panel"><img src="images/bd/panel1.webp" alt="Vignette 1"></div>
+              <div class="bd-entry-panel"><img src="images/bd/panel2.webp" alt="Vignette 2"></div>
+              <div class="bd-entry-panel"><img src="images/bd/panel3.webp" alt="Vignette 3"></div>
+              <div class="bd-entry-panel"><img src="images/bd/panel4.webp" alt="Vignette 4"></div>
+              <div class="bd-entry-panel"><img src="images/bd/panel5.webp" alt="Vignette 5"></div>
+              <div class="bd-entry-panel"><img src="images/bd/panel6.webp" alt="Vignette 6"></div>
+            </div>
+          </div>
+        </div>
+        <button class="bd-entry-read" type="button">Lire la BD <span aria-hidden="true">→</span></button>
+      </div>
+
+      <div class="bd-entry" data-comic="grandir" style="background:#3E86D6; --entry-bg:#3E86D6;">
+        <div class="bd-entry-frame">
+          <button class="bd-entry-cover" type="button" aria-label="Lire Grandir">
+            <img src="images/bd/grandir/panel1.webp" alt="Couverture — Grandir">
+          </button>
+          <div class="bd-entry-strip">
+            <button class="bd-entry-strip-close" type="button" aria-label="Fermer la BD">✕</button>
+            <button class="bd-entry-strip-arrow bd-entry-strip-prev" type="button" aria-label="Vignette précédente">‹</button>
+            <button class="bd-entry-strip-arrow bd-entry-strip-next" type="button" aria-label="Vignette suivante">›</button>
+            <div class="bd-entry-track">
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel1.webp" alt="Vignette 1"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel2.webp" alt="Vignette 2"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel3.webp" alt="Vignette 3"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel4.webp" alt="Vignette 4"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel5.webp" alt="Vignette 5"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel6.webp" alt="Vignette 6"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel7.webp" alt="Vignette 7"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel8.webp" alt="Vignette 8"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel9.webp" alt="Vignette 9"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel10.webp" alt="Vignette 10"></div>
+              <div class="bd-entry-panel"><img src="images/bd/grandir/panel11.webp" alt="Vignette 11"></div>
+            </div>
+          </div>
+        </div>
+        <button class="bd-entry-read" type="button">Lire la BD <span aria-hidden="true">→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <button class="room-nav" id="room-nav" type="button">
+    <span class="room-nav-label">Pièce suivante</span>
+    <span class="room-nav-next" id="room-nav-next">Les voyages parisiens</span>
+    <span class="room-nav-arrow" aria-hidden="true">→</span>
+  </button>
+
+</section>
+
+<section class="guide">
+  <span class="eyebrow">Mode d'emploi</span>
+  <p>Les petits cercles bleus posés sur l'illustration sont autant de portes entrouvertes. Cliquez sur la cheminée, le tapis, le canapé ou la lampe pour découvrir ce que chacun raconte de moi.</p>
+</section>
+
+<section class="univers" id="mon-univers">
+  <div class="univers-head">
+    <span class="eyebrow">À explorer plus loin</span>
+    <h2>Mon univers</h2>
+    <p>Chaque rubrique de ce salon a sa propre page. Cliquez sur une illustration pour vous y installer.</p>
+  </div>
+  <div class="univers-grid" id="univers-grid"></div>
+</section>
+
+<footer>
+  <p>Un salon, huit fragments, une seule histoire</p>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" id="modal-close" aria-label="Fermer">×</button>
+    <span class="eyebrow" id="modal-eyebrow"></span>
+    <h3 id="modal-title"></h3>
+    <div class="modal-image" id="modal-image" role="img" aria-label=""></div>
+    <div class="divider"></div>
+    <p id="modal-body"></p>
+    <p class="sign" id="modal-sign"></p>
+    <a class="modal-cta" id="modal-cta" href="#">En savoir plus →</a>
+  </div>
+</div>
+
+<script>
+  // Typing effect for a room's hero title — reusable, so it can replay
+  // whenever a room becomes active.
+  const reduceMotionTitles = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function typeRoomTitle(roomEl){
+    const titleEl = roomEl.querySelector('.hero-title');
+    const typedEl = roomEl.querySelector('.typed-title');
+    const caretEl = roomEl.querySelector('.caret');
+    const subEl = roomEl.querySelector('.hero-sub');
+    if(!titleEl || !typedEl) return;
+    const fullText = titleEl.getAttribute('data-title') || '';
+    const autoRevealSub = roomEl.id !== 'room-salon';
+
+    typedEl.textContent = '';
+    caretEl.classList.remove('done');
+    subEl.classList.remove('visible');
+
+    if(reduceMotionTitles){
+      typedEl.textContent = fullText;
+      caretEl.classList.add('done');
+      if(autoRevealSub) subEl.classList.add('visible');
+      return;
+    }
+
+    let i = 0;
+    function typeChar(){
+      if(i <= fullText.length){
+        typedEl.textContent = fullText.slice(0, i);
+        i++;
+        setTimeout(typeChar, 55);
+      } else {
+        caretEl.classList.add('done');
+        if(autoRevealSub) setTimeout(() => subEl.classList.add('visible'), 200);
+      }
+    }
+    setTimeout(typeChar, 500);
+  }
+
+  // Kick off the first (active) room's title on load
+  typeRoomTitle(document.getElementById('room-salon'));
+
+  // "explore le dessin" and the metro's story point both open the same
+  // popup drawer used for every object on the illustration.
+  const introContent = {
+    salon: {
+      name: "Mon appartement",
+      title: "Bienvenue dans mon appartement",
+      body: "Chaque objet de ce salon garde un fragment de moi. Approchez-vous, cliquez, et laissez-vous raconter ce qui se cache derrière le trait de crayon.",
+      sign: "— mon salon, esquissé",
+      zone: { cx: 50, cy: 50, rx: 60, ry: 60 }
+    },
+    metro: {
+      name: "Le métro parisien",
+      title: "Mon aventure parisienne",
+      body: "Arrivée à Paris en 2015. Cinq ans chez Renault, puis trois ans dans une association. Une formation en design UX/UI pour apprendre à penser autrement. Et depuis deux ans, des études de psychologie — pour comprendre, cette fois, ce qui se joue derrière les écrans et les gens.",
+      sign: "— mon aventure parisienne",
+      customImage: "images/metro_paris_ouvert.webp",
+      zone: { cx: 50, cy: 50, rx: 60, ry: 60 }
+    }
+  };
+
+  document.getElementById('nav-hint').addEventListener('click', () => {
+    const activeRoom = document.querySelector('.hero-room.active');
+    const content = activeRoom && activeRoom.id === 'room-metro' ? introContent.metro : introContent.salon;
+    openModal(content);
+  });
+
+  document.getElementById('metro-story-spot').addEventListener('click', () => {
+    openModal(introContent.metro);
+  });
+
+  // Each BD entry: the cover transforms in place into a horizontally
+  // scrollable strip of panels, with a peek of the next one — click the
+  // cover (or "Lire la BD") to open, ✕ or Escape to close.
+  document.querySelectorAll('.bd-entry-frame').forEach(frame => {
+    const coverBtn = frame.querySelector('.bd-entry-cover');
+    const strip = frame.querySelector('.bd-entry-strip');
+    const track = frame.querySelector('.bd-entry-track');
+    const closeBtn = frame.querySelector('.bd-entry-strip-close');
+    const prevBtn = frame.querySelector('.bd-entry-strip-prev');
+    const nextBtn = frame.querySelector('.bd-entry-strip-next');
+    const panels = Array.from(track.children);
+    const readBtn = frame.parentElement.querySelector('.bd-entry-read');
+    let panelIndex = 0;
+
+    function goToPanel(i){
+      panelIndex = Math.max(0, Math.min(panels.length - 1, i));
+      panels[panelIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      prevBtn.disabled = panelIndex === 0;
+      nextBtn.disabled = panelIndex === panels.length - 1;
+    }
+
+    function openStrip(){
+      strip.classList.add('open');
+      track.scrollTo({ left: 0, behavior: 'auto' });
+      panelIndex = 0;
+      prevBtn.disabled = true;
+      nextBtn.disabled = false;
+    }
+
+    function closeStrip(){
+      strip.classList.remove('open');
+    }
+
+    coverBtn.addEventListener('click', openStrip);
+    if(readBtn) readBtn.addEventListener('click', openStrip);
+    closeBtn.addEventListener('click', closeStrip);
+    prevBtn.addEventListener('click', () => goToPanel(panelIndex - 1));
+    nextBtn.addEventListener('click', () => goToPanel(panelIndex + 1));
+
+    let scrollTimeout;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const center = track.scrollLeft + track.clientWidth / 2;
+        let closest = 0, closestDist = Infinity;
+        panels.forEach((p, i) => {
+          const dist = Math.abs((p.offsetLeft + p.offsetWidth / 2) - center);
+          if(dist < closestDist){ closestDist = dist; closest = i; }
+        });
+        panelIndex = closest;
+        prevBtn.disabled = panelIndex === 0;
+        nextBtn.disabled = panelIndex === panels.length - 1;
+      }, 120);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if(!strip.classList.contains('open')) return;
+      if(e.key === 'Escape') closeStrip();
+      if(e.key === 'ArrowRight') goToPanel(panelIndex + 1);
+      if(e.key === 'ArrowLeft') goToPanel(panelIndex - 1);
+    });
+  });
+</script>
+
+<script>
+  const ROOM_COLOR_VARIANTS = ["images/salon_rose.webp", "images/salon_bleu.webp", "images/salon_orange.webp"];
+  const ROOM_MOOD_COLORS = ["#F1A5B8", "#547AB8", "#82B1B3"];
+  let roomColorIndex = 0;
+  const ROOM_IMAGE = ROOM_COLOR_VARIANTS[roomColorIndex];
+  document.querySelector('.img-base').src = ROOM_IMAGE;
+  document.querySelector('.img-base').classList.add('color-on');
+  document.getElementById('img-color').src = ROOM_IMAGE;
+  document.getElementById('room-salon').style.setProperty('--mood-color', ROOM_MOOD_COLORS[roomColorIndex]);
+  document.getElementById('salon-frame').style.setProperty('--mood-color', ROOM_MOOD_COLORS[roomColorIndex]);
+  document.getElementById('salon-frame').style.setProperty('--title-bg', ROOM_MOOD_COLORS[roomColorIndex]);
+
+  // Position (in % of the hero image) and content for each clickable element.
+  // Adjust "x" / "y" here if a pin doesn't sit exactly on its object.
+  const elements = [
+    {
+      id: "cheminee",
+      page: "pages/cheminee.html",
+      sticker: "images/img2.webp",
+      name: "La cheminée",
+      scale: 1.85,
+      x: 19, y: 38,
+      zone: { cx: 19, cy: 38, rx: 13, ry: 26 },
+      punch: 1.6,
+      title: "Mes talents secrets",
+      body: "Derrière la chaleur qu'elle diffuse, la cheminée garde aussi ce que l'on ne montre pas d'emblée. Ici vivent mes talents secrets — ceux que je cultive à voix basse, loin des vitrines et des présentations.",
+      sign: "— ce qui couve sous la cendre"
+    },
+    {
+      id: "tapis",
+      page: "pages/tapis.html",
+      sticker: "images/img3.webp",
+      name: "Le tapis",
+      x: 51, y: 75,
+      zone: { cx: 51, cy: 75, rx: 17, ry: 26 },
+      punch: 1.4,
+      title: "Mes voyages",
+      body: "Chaque motif raconte un chemin parcouru. Ce tapis est une carte tissée de villes traversées, de lumières différentes et de langues apprises en chemin.",
+      sign: "— tissé de kilomètres"
+    },
+    {
+      id: "canape",
+      page: "pages/canape.html",
+      sticker: "images/img4.webp",
+      name: "Le canapé",
+      x: 80, y: 60,
+      zone: { cx: 80, cy: 60, rx: 22, ry: 38 },
+      punch: 1.25,
+      title: "Où est-ce que je dessine",
+      body: "C'est ici que je m'installe, carnet sur les genoux, crayon à la main. Le canapé est mon atelier discret — celui où naissent mes illustrations, entre deux silences.",
+      sign: "— mon atelier de coin de pièce"
+    },
+    {
+      id: "bibliotheque",
+      page: "pages/bibliotheque.html",
+      sticker: "images/img5.webp",
+      name: "La bibliothèque",
+      scale: 1.8,
+      x: 61, y: 42,
+      zone: { cx: 61, cy: 42, rx: 9, ry: 24 },
+      punch: 1.75,
+      title: "Mes inspirations",
+      body: "Une bibliothèque n'est jamais neutre : elle dessine le portrait de ce qui nourrit un regard. Voici les livres, les images et les idées qui façonnent le mien.",
+      sign: "— rangée par affinités, pas par ordre"
+    },
+    {
+      id: "tableau",
+      page: "pages/tableau.html",
+      sticker: "images/img6.webp",
+      name: "Le tableau",
+      x: 63, y: 15,
+      zone: { cx: 63, cy: 15, rx: 8, ry: 10 },
+      punch: 1.9,
+      title: "L'art dans ma vie",
+      body: "Un cadre accroché, une présence silencieuse sur le mur — l'art s'invite partout chez moi, discrètement mais sûrement, et change la façon dont je regarde le reste.",
+      sign: "— accroché depuis longtemps"
+    },
+    {
+      id: "table",
+      page: "pages/table.html",
+      sticker: "images/img7.webp",
+      name: "La table",
+      x: 40, y: 42,
+      zone: { cx: 40, cy: 42, rx: 14, ry: 18 },
+      punch: 1.55,
+      title: "Ce dont je me nourris",
+      body: "Autour de cette table se jouent les repas, les conversations tardives et les idées échangées. Ce dont je me nourris ne tient jamais qu'à l'assiette.",
+      sign: "— dressée pour plus d'un plat"
+    },
+    {
+      id: "plantes",
+      page: "pages/plantes.html",
+      sticker: "images/img8.webp",
+      name: "Les plantes",
+      x: 18, y: 68,
+      zone: { cx: 18, cy: 68, rx: 10, ry: 18 },
+      punch: 1.8,
+      title: "Ce que j'ai envie de faire grandir",
+      body: "Une plante est une promesse silencieuse. Ici, je garde une trace de ce que j'ai envie de voir grandir — un projet, un lien, une idée encore fragile.",
+      sign: "— arrosé avec constance"
+    },
+    {
+      id: "lampe",
+      page: "pages/lampe.html",
+      sticker: "images/img9.webp",
+      name: "La lampe",
+      scale: 1.6,
+      x: 78, y: 25,
+      zone: { cx: 78, cy: 25, rx: 7, ry: 17 },
+      punch: 1.85,
+      title: "Ma créativité",
+      body: "Une lumière posée dans un coin, allumée aux heures discrètes. C'est là, souvent tard et souvent seule, que ma créativité s'éveille vraiment.",
+      sign: "— allumée après la tombée du jour",
+      toggle: true
+    }
+  ];
+
+  // Extra rubriques that don't appear as hotspots on the illustration,
+  // but do get their own sticker + card in the "Mon univers" gallery below.
+  const extraElements = [
+    {
+      id: "chaises",
+      page: "pages/chaises.html",
+      sticker: "images/img10.webp",
+      name: "Les chaises",
+      scale: 1.3,
+      title: "Les gens que j'accueille",
+      body: "Elles ne servent à rien tant que personne ne s'assoit. Ces chaises autour de la table racontent qui je fais entrer chez moi — et combien de place je garde, presque toujours, pour un invité de plus.",
+      sign: "— toujours une place de plus"
+    },
+    {
+      id: "tresors",
+      page: "pages/tresors.html",
+      sticker: "images/img12.webp",
+      name: "Trésors",
+      scale: 1.7,
+      title: "Ce que je garde précieusement",
+      body: "Pas grand-chose de valeur, mais tout ce qui compte : un ticket, une lettre, un objet qu'on n'a jamais réparé. Ce sont mes petits trésors, rangés là où personne ne les cherche.",
+      sign: "— précieux sans être chers"
+    }
+  ];
+
+  const hotspotsLayer = document.getElementById('hotspots');
+  const universGrid = document.getElementById('univers-grid');
+  const colorLayer = document.getElementById('img-color');
+  const baseLayer = document.querySelector('.img-base');
+  const heroMedia = document.querySelector('.hero-media');
+  const focusVignette = document.getElementById('focus-vignette');
+  const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function revealColor(el){
+    colorLayer.style.setProperty('--cx', el.zone.cx + '%');
+    colorLayer.style.setProperty('--cy', el.zone.cy + '%');
+    colorLayer.style.setProperty('--rx', el.zone.rx + '%');
+    colorLayer.style.setProperty('--ry', el.zone.ry + '%');
+    colorLayer.classList.add('visible');
+  }
+
+  function hideColor(){
+    colorLayer.classList.remove('visible');
+  }
+
+  // Cinematic click feedback: the camera pushes in on the clicked object —
+  // the room zooms and dims around it, its pin bounces, and the popup
+  // fades in a beat later as if arriving after the push-in. The zoom holds
+  // until the popup is closed, then eases back out.
+  function punchClick(el, pinEl){
+    if(reduceMotionQuery.matches){
+      if(pinEl){ pinEl.classList.remove('bounce'); void pinEl.offsetWidth; pinEl.classList.add('bounce'); }
+      return;
+    }
+    heroMedia.style.transformOrigin = el.x + '% ' + el.y + '%';
+    heroMedia.style.setProperty('--zoom-scale', el.punch || 1.5);
+    heroMedia.classList.add('zoomed');
+
+    focusVignette.style.setProperty('--vx', el.x + '%');
+    focusVignette.style.setProperty('--vy', el.y + '%');
+    focusVignette.classList.add('active');
+
+    if(pinEl){
+      pinEl.classList.remove('bounce');
+      void pinEl.offsetWidth;
+      pinEl.classList.add('bounce');
+    }
+  }
+
+  function releaseZoom(){
+    heroMedia.classList.remove('zoomed');
+    focusVignette.classList.remove('active');
+  }
+
+  // The mood pastilles (and the lamp) switch the whole illustration between
+  // its colour variants — the page background always matches the current one.
+  const salonRoomEl = document.getElementById('room-salon');
+  const salonFrameEl = document.getElementById('salon-frame');
+  const moodBtns = document.querySelectorAll('.mood-btn');
+
+  function selectRoomColor(index){
+    if(index === roomColorIndex) return;
+    roomColorIndex = index;
+    const nextSrc = ROOM_COLOR_VARIANTS[roomColorIndex];
+    const nextMood = ROOM_MOOD_COLORS[roomColorIndex];
+    colorLayer.style.setProperty('--rx', '150%');
+    colorLayer.style.setProperty('--ry', '150%');
+    colorLayer.style.setProperty('--cx', '50%');
+    colorLayer.style.setProperty('--cy', '50%');
+    colorLayer.src = nextSrc;
+    colorLayer.classList.add('visible');
+    salonRoomEl.style.setProperty('--mood-color', nextMood);
+    salonFrameEl.style.setProperty('--mood-color', nextMood);
+    salonFrameEl.style.setProperty('--title-bg', nextMood);
+    moodBtns.forEach((b, i) => b.classList.toggle('active', i === roomColorIndex));
+    setTimeout(() => {
+      baseLayer.src = nextSrc;
+      colorLayer.classList.remove('visible');
+    }, 550);
+  }
+
+  function cycleRoomColor(){
+    selectRoomColor((roomColorIndex + 1) % ROOM_COLOR_VARIANTS.length);
+  }
+
+  moodBtns.forEach((btn, i) => {
+    btn.addEventListener('click', () => selectRoomColor(i));
+  });
+  moodBtns[0].classList.add('active');
+
+  let cardIndex = 0;
+  function createUniversCard(el){
+    const card = document.createElement('a');
+    card.className = 'univers-card';
+    card.href = el.page;
+    card.style.transitionDelay = ((cardIndex % 6) * 0.07) + 's';
+    cardIndex++;
+    const scaleStyle = el.scale ? ' style="--s:' + el.scale + '"' : '';
+    card.innerHTML =
+      '<span class="sticker"><img src="' + el.sticker + '" alt="' + el.name + '" loading="lazy"' + scaleStyle + '></span>' +
+      '<span class="theme-name">' + el.name + '</span>';
+    universGrid.appendChild(card);
+  }
+
+  elements.forEach(el => {
+    // Hotspot pin on the illustration
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.style.left = el.x + '%';
+    btn.style.top = el.y + '%';
+    btn.setAttribute('aria-label', el.name + ' — ' + el.title);
+    btn.innerHTML = '<span class="ring"></span><span class="pin"></span><span class="hotspot-label">' + el.name + '</span>';
+    const pinEl = btn.querySelector('.pin');
+    if(el.toggle){
+      btn.addEventListener('mouseenter', () => revealColor(el));
+      btn.addEventListener('focus', () => revealColor(el));
+      btn.addEventListener('mouseleave', hideColor);
+      btn.addEventListener('blur', hideColor);
+      btn.addEventListener('click', () => { punchClick(el, pinEl); cycleRoomColor(); setTimeout(() => openModal(el), reduceMotionQuery.matches ? 0 : 320); });
+    } else {
+      btn.addEventListener('mouseenter', () => revealColor(el));
+      btn.addEventListener('focus', () => revealColor(el));
+      btn.addEventListener('mouseleave', hideColor);
+      btn.addEventListener('blur', hideColor);
+      btn.addEventListener('click', () => { punchClick(el, pinEl); revealColor(el); setTimeout(() => openModal(el), reduceMotionQuery.matches ? 0 : 320); });
+    }
+    hotspotsLayer.appendChild(btn);
+
+    // "Mon univers" gallery card — links to this object's own page
+    createUniversCard(el);
+  });
+
+  // Extra rubriques (no spot on the illustration itself, gallery card only)
+  extraElements.forEach(createUniversCard);
+
+  const overlay = document.getElementById('modal-overlay');
+  const modalEyebrow = document.getElementById('modal-eyebrow');
+  const modalTitle = document.getElementById('modal-title');
+  const modalImage = document.getElementById('modal-image');
+  const modalBody = document.getElementById('modal-body');
+  const modalSign = document.getElementById('modal-sign');
+  const modalCta = document.getElementById('modal-cta');
+  const closeBtn = document.getElementById('modal-close');
+  let lastFocused = null;
+
+  function openModal(el){
+    lastFocused = document.activeElement;
+    modalEyebrow.textContent = el.name;
+    modalTitle.textContent = el.title;
+    modalBody.textContent = el.body;
+    modalSign.textContent = el.sign;
+
+    // Zoom into that object's spot on the colour illustration for the popup thumbnail
+    const zoom = Math.max(240, Math.min(460, 8000 / (el.zone.rx + el.zone.ry)));
+    const imgSrc = el.customImage || ROOM_COLOR_VARIANTS[roomColorIndex];
+    modalImage.style.backgroundImage = "url('" + imgSrc + "')";
+    modalImage.style.backgroundSize = zoom + '% auto';
+    modalImage.style.backgroundPosition = el.zone.cx + '% ' + el.zone.cy + '%';
+    modalImage.setAttribute('aria-label', el.name + ', en couleur');
+
+    // "En savoir plus" — set el.link (e.g. a page, article or gallery URL) per
+    // element above to point it somewhere real; defaults to "#" for now.
+    if(el.link){
+      modalCta.href = el.link;
+      modalCta.target = '_blank';
+      modalCta.rel = 'noopener';
+    } else {
+      modalCta.href = '#';
+      modalCta.removeAttribute('target');
+      modalCta.removeAttribute('rel');
+    }
+
+    overlay.classList.add('open');
+    closeBtn.focus();
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    hideColor();
+    releaseZoom();
+    if(lastFocused) lastFocused.focus();
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+  });
+
+  // Scroll-reveal: the sticker cards settle into place, staggered, as they
+  // scroll into view — like they're being placed on the page one by one.
+  if(reduceMotionQuery.matches){
+    document.querySelectorAll('.univers-card').forEach(c => c.classList.add('in-view'));
+  } else if('IntersectionObserver' in window){
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          cardObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.univers-card').forEach(c => cardObserver.observe(c));
+  } else {
+    document.querySelectorAll('.univers-card').forEach(c => c.classList.add('in-view'));
+  }
+
+  // Subtle parallax on the hero illustration as the page scrolls, for depth.
+  if(!reduceMotionQuery.matches){
+    const heroImgs = document.querySelectorAll('.hero-media img:not(.room-static)');
+    const heroSection = document.querySelector('.hero');
+    let ticking = false;
+    function updateParallax(){
+      const heroHeight = heroSection.offsetHeight || window.innerHeight;
+      const progress = Math.min(1, Math.max(0, window.scrollY / heroHeight));
+      const shift = progress * 46; // px drift
+      heroImgs.forEach(img => { img.style.transform = 'translateY(' + shift + 'px) scale(1.06)'; });
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if(!ticking){
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }, { passive: true });
+    updateParallax();
+  }
+</script>
+
+
+<script>
+  const METRO_CLOSED_IMAGE = "images/metro_paris_ferme.webp";
+  const METRO_OPEN_IMAGE = "images/metro_paris_ouvert.webp";
+  const metroImg = document.getElementById('metro-img');
+  const metroDoorsBtn = document.getElementById('metro-doors-btn');
+  const metroDoorsLabel = document.getElementById('metro-doors-label');
+  metroImg.src = METRO_CLOSED_IMAGE;
+  let doorsOpen = false;
+
+  // Small synthesized SNCF/RATP-style door chime + hiss, generated with
+  // the Web Audio API (no external audio file needed).
+  let audioCtx = null;
+  function getAudioCtx(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) audioCtx = new AC();
+    }
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playTone(ctx, freq, startTime, duration, gainPeak){
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, startTime);
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(gainPeak, startTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.02);
+  }
+
+  function playHiss(ctx, startTime, duration, gainPeak){
+    const bufferSize = ctx.sampleRate * duration;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i = 0; i < bufferSize; i++){ data[i] = (Math.random() * 2 - 1); }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 2200;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(gainPeak, startTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+    noise.connect(filter).connect(gain).connect(ctx.destination);
+    noise.start(startTime);
+    noise.stop(startTime + duration + 0.02);
+  }
+
+  function playDoorSound(opening){
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    if(opening){
+      // Two-note ascending chime, then the hiss of doors sliding open
+      playTone(ctx, 622, now, 0.22, 0.18);
+      playTone(ctx, 830, now + 0.16, 0.24, 0.18);
+      playHiss(ctx, now + 0.32, 0.5, 0.05);
+    } else {
+      // Two-note descending chime, then a short closing thud/hiss
+      playTone(ctx, 830, now, 0.2, 0.18);
+      playTone(ctx, 622, now + 0.14, 0.24, 0.18);
+      playHiss(ctx, now + 0.3, 0.28, 0.06);
+    }
+  }
+
+  metroDoorsBtn.addEventListener('click', () => {
+    doorsOpen = !doorsOpen;
+    metroImg.src = doorsOpen ? METRO_OPEN_IMAGE : METRO_CLOSED_IMAGE;
+    metroDoorsLabel.textContent = doorsOpen ? 'Fermer les portes' : 'Ouvrir les portes';
+    metroDoorsBtn.setAttribute('aria-pressed', doorsOpen ? 'true' : 'false');
+    playDoorSound(doorsOpen);
+  });
+
+  // Room carousel: cycles between salon, metro, and the BD library page.
+  (function(){
+    const rooms = Array.from(document.querySelectorAll('.hero-room'));
+    const roomMeta = rooms.map(r => ({
+      el: r,
+      title: r.getAttribute('data-title') || ''
+    }));
+    const navBtn = document.getElementById('room-nav');
+    const navNext = document.getElementById('room-nav-next');
+    const siteNav = document.querySelector('.site-nav');
+    let current = 0;
+
+    function updateNavLabel(){
+      const nextIndex = (current + 1) % roomMeta.length;
+      navNext.textContent = roomMeta[nextIndex].title;
+    }
+
+    function goToRoom(index){
+      roomMeta[current].el.classList.remove('active');
+      current = index;
+      roomMeta[current].el.classList.add('active');
+      updateNavLabel();
+      if(siteNav) siteNav.classList.toggle('on-beige', roomMeta[current].el.id === 'room-metro' || roomMeta[current].el.id === 'room-bd');
+    }
+
+    navBtn.addEventListener('click', () => {
+      goToRoom((current + 1) % roomMeta.length);
+    });
+
+    updateNavLabel();
+  })();
+</script>
+
+</body>
+</html>
