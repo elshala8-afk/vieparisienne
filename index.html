@@ -225,6 +225,56 @@
     .room-nav-next{ max-width: 38vw; }
   }
 
+  /* ---------- MOBILE: full-bleed illustration ---------- */
+  @media (max-width: 640px){
+    .salon-frame,
+    .metro-frame,
+    .bd-entry-frame{
+      top: 0;
+      left: 0;
+      transform: none;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      aspect-ratio: auto;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .bd-entry{ padding: 0; min-height: 100vh; }
+
+    /* The pill "Pièce suivante" bar is replaced by a round button,
+       bottom-right, so the illustration can use the full screen. */
+    .room-nav{
+      left: auto;
+      right: 1rem;
+      bottom: 1rem;
+      transform: none;
+      width: 54px;
+      height: 54px;
+      padding: 0;
+      border-radius: 50%;
+      justify-content: center;
+      background: rgba(20,16,8,0.72);
+      border: none;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+    }
+
+    .room-nav:hover, .room-nav:focus-visible{
+      transform: translateY(-2px);
+    }
+
+    .room-nav-label,
+    .room-nav-next{
+      display: none;
+    }
+
+    .room-nav-arrow{
+      font-size: 1.3rem;
+      color: #fff;
+    }
+  }
+
   .metro-doors{
     position: absolute;
     left: 50%;
