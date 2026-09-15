@@ -273,6 +273,27 @@
       font-size: 1.3rem;
       color: #fff;
     }
+
+    /* Smaller wordmark on small screens */
+    .wordmark{
+      font-size: 0.95rem;
+    }
+
+    /* Shift the salon crop toward the right so the lamp stays in frame
+       instead of being cut off on a narrow portrait screen. */
+    #room-salon .hero-media img{
+      object-position: 68% 26%;
+    }
+
+    /* The chimney's hotspot circle is too crowded on mobile — hide it */
+    .hotspot[data-id="cheminee"]{
+      display: none;
+    }
+
+    /* Drop the "L'appartement" title on mobile to keep the drawing clear */
+    #salon-frame-title{
+      display: none;
+    }
   }
 
   .metro-doors{
@@ -1843,6 +1864,7 @@
     // Hotspot pin on the illustration
     const btn = document.createElement('button');
     btn.className = 'hotspot';
+    btn.setAttribute('data-id', el.id);
     btn.style.left = el.x + '%';
     btn.style.top = el.y + '%';
     btn.setAttribute('aria-label', el.name + ' — ' + el.title);
@@ -2077,6 +2099,24 @@
     });
 
     updateNavLabel();
+
+    // Swipe right anywhere on a room to jump to the next one — but not
+    // while swiping inside a horizontally-scrollable BD strip or a modal.
+    let touchStartX = 0, touchStartY = 0;
+    document.querySelector('.hero').addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.querySelector('.hero').addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if(Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      if(dx <= 0) return; // only rightward swipes advance the room
+      const target = e.target;
+      if(target.closest('.bd-entry-strip.open, .bd-entry-track, .modal-overlay.open')) return;
+      goToRoom((current + 1) % roomMeta.length);
+    }, { passive: true });
   })();
 </script>
 
