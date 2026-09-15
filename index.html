@@ -294,6 +294,17 @@
     #salon-frame-title{
       display: none;
     }
+
+    /* Mobile: only the pink mood is available — hide the blue and green pastilles */
+    .mood-btn[data-mood="1"],
+    .mood-btn[data-mood="2"]{
+      display: none;
+    }
+
+    /* Hide the "Mon univers" object gallery on mobile */
+    #mon-univers{
+      display: none;
+    }
   }
 
   .metro-doors{
@@ -1838,6 +1849,7 @@
   }
 
   function cycleRoomColor(){
+    if(window.matchMedia('(max-width: 640px)').matches) return;
     selectRoomColor((roomColorIndex + 1) % ROOM_COLOR_VARIANTS.length);
   }
 
@@ -2091,7 +2103,7 @@
       current = index;
       roomMeta[current].el.classList.add('active');
       updateNavLabel();
-      if(siteNav) siteNav.classList.toggle('on-beige', roomMeta[current].el.id === 'room-metro' || roomMeta[current].el.id === 'room-bd');
+      if(siteNav) siteNav.classList.toggle('on-beige', roomMeta[current].el.id === 'room-metro');
     }
 
     navBtn.addEventListener('click', () => {
